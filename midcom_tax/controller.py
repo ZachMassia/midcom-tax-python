@@ -16,22 +16,11 @@ class Controller:
         self.app = QApplication([])
         self.window = MainWindow()
 
+        self.tax_model = TaxModel(self.midcom.taxes)
         self.setup_tax_table()
 
     def setup_tax_table(self):
-        data = []
-        for t in self.midcom.taxes:
-            data.append([
-                t.id,
-                t.label,
-                t.tax_type,
-                t.tax_rate,
-                t.tax_subtotal
-            ])
-
-        self.tax_model = TaxModel(self.midcom.taxes)
         self.window.ui.taxTableView.setModel(self.tax_model)
-
 
     @staticmethod
     def load_ui_file(filename: str):

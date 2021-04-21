@@ -1,5 +1,5 @@
-from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtCore import QItemSelection, Qt
+from PySide6 import QtCore
+from PySide6.QtCore import Qt
 
 
 class TaxModel(QtCore.QAbstractTableModel):
@@ -12,8 +12,6 @@ class TaxModel(QtCore.QAbstractTableModel):
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
-            #value = self._data[index.row()][index.column()]
-            #return str(value)
             tax = self._data[index.row()]
             col = index.column()
             if col == 0:
