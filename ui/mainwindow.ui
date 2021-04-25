@@ -20,7 +20,7 @@
       <item>
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="productTab">
          <attribute name="title">
@@ -28,7 +28,7 @@
          </attribute>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QTreeView" name="productTreeView"/>
+           <widget class="QTableView" name="productTableView"/>
           </item>
          </layout>
         </widget>

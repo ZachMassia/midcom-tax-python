@@ -38,10 +38,10 @@ class Ui_MainWindow(object):
         self.productTab.setObjectName(u"productTab")
         self.horizontalLayout_2 = QHBoxLayout(self.productTab)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.productTreeView = QTreeView(self.productTab)
-        self.productTreeView.setObjectName(u"productTreeView")
+        self.productTableView = QTableView(self.productTab)
+        self.productTableView.setObjectName(u"productTableView")
 
-        self.horizontalLayout_2.addWidget(self.productTreeView)
+        self.horizontalLayout_2.addWidget(self.productTableView)
 
         self.tabWidget.addTab(self.productTab, "")
         self.taxTab = QWidget()
@@ -84,7 +84,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)

@@ -1,5 +1,7 @@
 import typing
 
+from midcom_tax.midcom import Product
+
 from PySide6 import QtCore
 from PySide6.QtCore import Qt
 
@@ -92,23 +94,56 @@ class ProductModel(QtCore.QAbstractTableModel):
         super(ProductModel, self).__init__()
         self._data = data
         self.headers = [
-
+            'ID',
+            'Product tax combination'
         ]
 
     def data(self, index: QtCore.QModelIndex, role: int = ...) -> typing.Any:
-        pass
+        if role == Qt.DisplayRole:
+            product = self._data[index.row()]
+            col = index.column()
+            if col == 0:
+                return str(product.id)
+            elif col == 1:
+                xs = []
+                for x in product.taxes:
+                    if x == '00' and len(xs) == 0:
+                        xs = ['00']
+                        break
+                    elif x == '00':
+                        break
+                    xs.append(x)
+                return ''.join(xs)
 
-    def setData(self, index: QtCore.QModelIndex, value: typing.Any, role: int = ...) -> bool:
-        pass
+    def setData(self, index: QtCore.QModelIndex, value: typing.Any, role: int) -> bool:
+        if role == Qt.EditRole:
+            col = index.column()
+            row = index.row()
+
+            # ID
+            if col == 0:
+                return False
+
+            # Product Code
+            elif col == 1:
+                self._data[row].load_user_input_str(value)
+
+            return True
 
     def rowCount(self, parent: QtCore.QModelIndex = ...) -> int:
-        pass
+        return len(self._data)
 
     def columnCount(self, parent: QtCore.QModelIndex = ...) -> int:
-        pass
+        return len(self.headers)
 
     def flags(self, index: QtCore.QModelIndex) -> QtCore.Qt.ItemFlags:
-        pass
+        if index.row() == 0:
+            return Qt.ItemIsSelectable
+        elif index.column() == 0:
+            return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+        else:
+            return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
 
     def headerData(self, section: int, orientation: QtCore.Qt.Orientation, role: int = ...) -> typing.Any:
-        pass
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return self.headers[section]

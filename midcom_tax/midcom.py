@@ -50,9 +50,37 @@ class Product:
     def get_tax_code(self):
         return ''.join(self.taxes)
 
-    def load_raw_str(self, raw_str):
+    def load_user_input_str(self, user_str: str):
+        str_len = len(user_str)
+
+        # Full length, split and use as is.
+        if str_len > Product.max_tax_count * 2:
+            raise InvalidTaxFile(f'User entry error. Product combination code too long: {str_len}')
+        elif str_len == Product.max_tax_count * 2:
+            self.taxes = [user_str[j:j+2] for j in range(0, Product.max_tax_count, 2)]
+        else:
+            # Make sure even number of digits
+            if len(user_str) % 2 != 0:
+                raise InvalidTaxFile(f'User entry error. Products must be in sets of 2 digits.')
+
+            # Clear out previous list of tax codes
+            self.taxes = ['00'] * Product.max_tax_count
+
+            xs = [user_str[j:j+2] for j in range(0, str_len, 2)]
+            for i in range(len(xs)):
+                tax = xs[i]
+
+                # Make sure numeric only.
+                try:
+                    int(tax)
+                except ValueError as e:
+                    raise InvalidTaxFile(f'User entry error. Not a number: {tax}') from e
+
+                self.taxes[i] = tax
+
+    def load_raw_str(self, raw_str: str):
         if len(raw_str) == Product.max_tax_count * 2:
-            self.taxes = [raw_str[j:j+2] for j in range(0, Product.max_tax_count, 2)]
+            self.taxes = [raw_str[j:j+2] for j in range(0, Product.max_tax_count * 2, 2)]
         else:
             raise InvalidTaxFile(
                 f'Product tax combination improper length: {len(raw_str)}, should be {Product.max_tax_count*2}.'
