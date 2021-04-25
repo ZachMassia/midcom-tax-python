@@ -63,7 +63,7 @@ class MIDCOM:
     tax_entry_count = 20
     product_count = 100
 
-    valid_dat_file_len = 4736
+    valid_dat_file_len = 4740
     valid_str_file_len = 6145
 
     def __init__(self):
@@ -77,9 +77,14 @@ class MIDCOM:
         labels = '\r\n'.join([tax.label for tax in self.taxes])
         products = '\r\n'.join([product.get_tax_code() for product in self.products])
 
-        return '\n'.join([rates, labels, products])
+        return '\r\n'.join([rates, labels, products, '\r\n'])
 
     def load_dat(self, contents):
+        if len(contents) != MIDCOM.valid_dat_file_len:
+            raise InvalidTaxFile(
+                f'Could not load Cybercard tax file, length "{len(contents)} != {MIDCOM.valid_dat_file_len}"'
+            )
+
         # Split file on newline.
         xs = contents.split('\r\n')
 
@@ -151,4 +156,4 @@ class MIDCOM:
         return output_str
 
     def load_str(self, contents):
-        pass
+        raise InvalidTaxFile('Loading SD Card .str files not yet supported.')
