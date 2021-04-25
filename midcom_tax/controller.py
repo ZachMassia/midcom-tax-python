@@ -54,7 +54,6 @@ class Controller:
             print(f'Loading {filename[0]} in SD Card format.')
             try:
                 self.midcom.load_str(contents)
-                self.tax_model.layoutChanged.emit()
             except InvalidTaxFile as e:
                 self.show_error_msg(repr(e))
 
