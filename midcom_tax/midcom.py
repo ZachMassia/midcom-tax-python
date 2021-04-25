@@ -92,13 +92,13 @@ class MIDCOM:
         taxes = [(t[0], t[1:7], t[7]) for t in tax_strings]
 
         # Setup tax objects.
-        for i in range(20):
+        for i in range(MIDCOM.tax_entry_count):
             tax = self.taxes[i]
             tax.load_tax_tuple(taxes[i])
             tax.label = label_strings[i]
 
         # Setup product objects.
-        for i in range(100):
+        for i in range(MIDCOM.product_count):
             prod = self.products[i]
             prod.load_raw_str(product_strings[i])
 
