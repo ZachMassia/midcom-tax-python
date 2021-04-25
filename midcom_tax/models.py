@@ -1,3 +1,5 @@
+import typing
+
 from PySide6 import QtCore
 from PySide6.QtCore import Qt
 
@@ -14,7 +16,7 @@ class TaxModel(QtCore.QAbstractTableModel):
             'Label (15 Character Maximum)'
         ]
 
-    def data(self, index, role):
+    def data(self, index: QtCore.QModelIndex, role: int = ...):
         if role == Qt.DisplayRole:
             tax = self._data[index.row()]
             col = index.column()
@@ -29,7 +31,7 @@ class TaxModel(QtCore.QAbstractTableModel):
             elif col == 4:
                 return str(tax.label)
 
-    def setData(self, index, value: str, role):
+    def setData(self, index: QtCore.QModelIndex, value: typing.Any, role: int = ...):
         if role == Qt.EditRole:
             col = index.column()
             row = index.row()
@@ -67,19 +69,46 @@ class TaxModel(QtCore.QAbstractTableModel):
 
             return True
 
-    def rowCount(self, index):
+    def rowCount(self, parent: QtCore.QModelIndex = ...):
         return len(self._data)
 
-    def columnCount(self, index):
+    def columnCount(self, parent: QtCore.QModelIndex = ...):
         return len(self.headers)
 
-    def flags(self, index):
+    def flags(self, index: QtCore.QModelIndex) -> QtCore.Qt.ItemFlags:
         if index.row() == 0:
             # First tax entry cannot be used.
             return Qt.ItemIsSelectable
         else:
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section: int, orientation: QtCore.Qt.Orientation, role: int = ...) -> typing.Any:
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self.headers[section]
+
+
+class ProductModel(QtCore.QAbstractTableModel):
+    def __init__(self, data):
+        super(ProductModel, self).__init__()
+        self._data = data
+        self.headers = [
+
+        ]
+
+    def data(self, index: QtCore.QModelIndex, role: int = ...) -> typing.Any:
+        pass
+
+    def setData(self, index: QtCore.QModelIndex, value: typing.Any, role: int = ...) -> bool:
+        pass
+
+    def rowCount(self, parent: QtCore.QModelIndex = ...) -> int:
+        pass
+
+    def columnCount(self, parent: QtCore.QModelIndex = ...) -> int:
+        pass
+
+    def flags(self, index: QtCore.QModelIndex) -> QtCore.Qt.ItemFlags:
+        pass
+
+    def headerData(self, section: int, orientation: QtCore.Qt.Orientation, role: int = ...) -> typing.Any:
+        pass
