@@ -1,3 +1,7 @@
+class InvalidTaxFile(Exception):
+    """Raised when there was an error parsing the user-loaded tax file."""
+
+
 class TaxEntry:
     max_label_len = 15
 
@@ -7,6 +11,30 @@ class TaxEntry:
         self.tax_rate = '000000'
         self.tax_subtotal = 'N'
         self.label = 'NOT A VALID TX-'
+
+    def load_tax_tuple(self, tax):
+        # Unpack tax tuple
+        tax_type = tax[0]
+        tax_rate = tax[1]
+        tax_subtotal = tax[2]
+
+        if tax_type is not None:
+            if tax_type in ['$', '%']:
+                self.tax_type = tax_type
+            else:
+                raise InvalidTaxFile(f'Invalid tax type: "{tax_type}"')
+
+        if tax_rate is not None:
+            if len(tax_rate) == 6:
+                self.tax_rate = tax_rate
+            else:
+                raise InvalidTaxFile(f'Invalid tax rate: "{tax_rate}", length {len(tax_rate)} != 6.')
+
+        if tax_subtotal is not None:
+            if tax_subtotal in ['Y', 'N']:
+                self.tax_subtotal = tax_subtotal
+            else:
+                raise InvalidTaxFile(f'Invalid subtotal modifier {tax_subtotal}, only "Y" or "N" valid.')
 
     def get_rate(self):
         return self.tax_type + self.tax_rate + self.tax_subtotal
@@ -22,10 +50,21 @@ class Product:
     def get_tax_code(self):
         return ''.join(self.taxes)
 
+    def load_raw_str(self, raw_str):
+        if len(raw_str) == Product.max_tax_count * 2:
+            self.taxes = [raw_str[j:j+2] for j in range(0, Product.max_tax_count, 2)]
+        else:
+            raise InvalidTaxFile(
+                f'Product tax combination improper length: {len(raw_str)}, should be {Product.max_tax_count*2}.'
+            )
+
 
 class MIDCOM:
     tax_entry_count = 20
     product_count = 100
+
+    valid_dat_file_len = 4736
+    valid_str_file_len = 6145
 
     def __init__(self):
         self.taxes = [TaxEntry(i) for i in range(MIDCOM.tax_entry_count)]
@@ -34,11 +73,34 @@ class MIDCOM:
         self.filename = ''
 
     def get_dat(self):
-        rates = '\n'.join([tax.get_rate() for tax in self.taxes])
-        labels = '\n'.join([tax.label for tax in self.taxes])
-        products = '\n'.join([product.get_tax_code() for product in self.products])
+        rates = '\r\n'.join([tax.get_rate() for tax in self.taxes])
+        labels = '\r\n'.join([tax.label for tax in self.taxes])
+        products = '\r\n'.join([product.get_tax_code() for product in self.products])
 
         return '\n'.join([rates, labels, products])
+
+    def load_dat(self, contents):
+        # Split file on newline.
+        xs = contents.split('\r\n')
+
+        # Get raw sections
+        tax_strings = xs[0:MIDCOM.tax_entry_count]  # [0:20]
+        label_strings = xs[MIDCOM.tax_entry_count:MIDCOM.tax_entry_count*2]  # [20:40]
+        product_strings = xs[MIDCOM.tax_entry_count*2:]  # [40:EOF]
+
+        # Split list of '$123456Y' into list of ('$', '123456', 'Y').
+        taxes = [(t[0], t[1:7], t[7]) for t in tax_strings]
+
+        # Setup tax objects.
+        for i in range(20):
+            tax = self.taxes[i]
+            tax.load_tax_tuple(taxes[i])
+            tax.label = label_strings[i]
+
+        # Setup product objects.
+        for i in range(100):
+            prod = self.products[i]
+            prod.load_raw_str(product_strings[i])
 
     def get_str(self):
         # First character must be a 'T'
@@ -88,7 +150,5 @@ class MIDCOM:
 
         return output_str
 
-    @staticmethod
-    def write_file(filename, contents):
-        with open(file=filename, mode='w', newline='') as file:
-            file.write(contents)
+    def load_str(self, contents):
+        pass

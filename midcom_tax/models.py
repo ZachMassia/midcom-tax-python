@@ -7,7 +7,11 @@ class TaxModel(QtCore.QAbstractTableModel):
         super(TaxModel, self).__init__()
         self._data = data
         self.headers = [
-            'ID', 'Label', 'Tax Type $/%', 'Rate XX.XXXX', 'Tax Subtotal? Y/N'
+            'ID',
+            'Tax Type "$" / "%"',
+            'Rate "XX.XXXX"',
+            'Tax Subtotal? "Y" / "N"',
+            'Label (15 Character Maximum)'
         ]
 
     def data(self, index, role):
@@ -17,32 +21,50 @@ class TaxModel(QtCore.QAbstractTableModel):
             if col == 0:
                 return str(tax.id)
             elif col == 1:
-                return str(tax.label)
-            elif col == 2:
                 return str(tax.tax_type)
-            elif col == 3:
+            elif col == 2:
                 return str(tax.tax_rate)
-            elif col == 4:
+            elif col == 3:
                 return str(tax.tax_subtotal)
+            elif col == 4:
+                return str(tax.label)
 
-    def setData(self, index, value, role):
+    def setData(self, index, value: str, role):
         if role == Qt.EditRole:
             col = index.column()
             row = index.row()
+
+            # ID
             if col == 0:
                 return False
+
+            # Tax Type
             elif col == 1:
-                # TODO: Trim input to 15 chars
-                self._data[row].label = value
-            elif col == 2:
-                # TODO: Limit input to '$' or '%'
+                if value not in ['$', '%']:
+                    return False
                 self._data[row].tax_type = value
-            elif col == 3:
-                # TODO: Limit input to 6 digits
+
+            # Tax Rate
+            elif col == 2:
+                if len(value) != 6:
+                    return False
                 self._data[row].tax_rate = value
-            elif col == 4:
-                # TODO: Limit input to 'Y' or 'N'
+
+            # Tax Subtotal
+            elif col == 3:
+                if value not in ['Y', 'N']:
+                    return False
                 self._data[row].tax_subtotal = value
+
+            # Label
+            elif col == 4:
+                trimmed = value[:15]
+                label_len = len(trimmed)
+                if label_len < 15:
+                    trimmed += ' ' * (15-label_len)
+                print(len(trimmed))
+                self._data[row].label = trimmed
+
             return True
 
     def rowCount(self, index):
@@ -52,9 +74,11 @@ class TaxModel(QtCore.QAbstractTableModel):
         return len(self.headers)
 
     def flags(self, index):
-        # TODO: Find flag to prevent multiple tab inputs in succession from
-        #       essentially clearing everything out.
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
+        if index.row() == 0:
+            # First tax entry cannot be used.
+            return Qt.ItemIsSelectable
+        else:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
