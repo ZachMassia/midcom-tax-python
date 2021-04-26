@@ -105,7 +105,7 @@ class MIDCOM:
         labels = '\r\n'.join([tax.label for tax in self.taxes])
         products = '\r\n'.join([product.get_tax_code() for product in self.products])
 
-        return '\r\n'.join([rates, labels, products, '\r\n'])
+        return '\r\n'.join([rates, labels, products, ''])
 
     def load_dat(self, contents):
         if len(contents) != MIDCOM.valid_dat_file_len:
