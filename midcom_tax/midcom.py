@@ -1,3 +1,5 @@
+from textwrap import wrap
+
 class InvalidTaxFile(Exception):
     """Raised when there was an error parsing the user-loaded tax file."""
 
@@ -184,4 +186,62 @@ class MIDCOM:
         return output_str
 
     def load_str(self, contents):
-        raise InvalidTaxFile('Loading SD Card .str files not yet supported.')
+        if len(contents) != MIDCOM.valid_str_file_len:
+            raise InvalidTaxFile(
+                f'Could not load SD tax file, length "{len(contents)} != {MIDCOM.valid_str_file_len}"'
+            )
+        
+        # Grab the 20 tax rates.
+        i = 512
+        rate_len = 8
+        tax_rate_str = contents[i:i+(MIDCOM.tax_entry_count*rate_len)]
+
+        # Split into array of tax rates.
+        tax_strings = [tax_rate_str[i:i+rate_len] for i in range(0, len(tax_rate_str), rate_len)]
+
+        # Split list of '$123456Y' into list of ('$', '123456', 'Y').
+        taxes = [(t[0], t[1:7], t[7]) for t in tax_strings]
+
+        # Grab the 100 product combinations.
+        i = 1536
+        comb_len = 40
+        products = []
+
+        for _ in range(0, 8):
+            products.extend(wrap(
+                contents[i:i+(12*comb_len)],
+                comb_len
+            ))
+            i += 512
+
+        # Grab remaining 4 entries not included in above loop.
+        products.extend(wrap(
+            contents[i:i+(4*comb_len)],
+            comb_len
+        ))
+
+        # Grab the 20 labels.
+        i = 1024
+        label_len = 15
+        label_str = contents[i:i+(MIDCOM.tax_entry_count*label_len)]
+
+        # Split into array of labels.
+        label_strings = [label_str[i:i+label_len] for i in range(0, len(label_str), label_len)]
+
+        # Setup tax objects.
+        for i in range(MIDCOM.tax_entry_count):
+            tax = self.taxes[i]
+            tax.load_tax_tuple(taxes[i])
+            tax.label = label_strings[i]
+
+        # Setup product objects.
+        for i in range(MIDCOM.product_count):
+            prod = self.products[i]
+            prod.load_raw_str(products[i])
+
+
+        
+
+        
+
+        

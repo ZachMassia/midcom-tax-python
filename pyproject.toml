@@ -5,7 +5,7 @@ description = ""
 authors = ["Zach Massia <zmassia@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.10"
+python = ">=3.10,<3.11"
 PySide6 = "^6.0.3"
 
 [tool.poetry.dev-dependencies]
