@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "midcom-tax"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Zach Massia <zmassia@gmail.com>"]
 
@@ -12,7 +12,7 @@ PySide6 = "^6.0.3"
 pytest = "^5.2"
 pylint = "^2.7.4"
 autopep8 = "^1.5.6"
-pyinstaller = "^4.3"
+pyinstaller = "^5.2"
 
 [tool.poetry.scripts]
 run = "midcom_tax.app:main"

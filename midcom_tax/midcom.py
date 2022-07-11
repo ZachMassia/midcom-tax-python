@@ -238,10 +238,3 @@ class MIDCOM:
         for i in range(MIDCOM.product_count):
             prod = self.products[i]
             prod.load_raw_str(products[i])
-
-
-        
-
-        
-
-        
